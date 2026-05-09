@@ -25,7 +25,8 @@ module.exports = function (RED) {
         const debug      = !!n.debug;
 
         let pollTimer = null;
-        const pollMs = n.poll ? Math.max(1000, Number(n.poll) * 1000) : 0;
+        const pollSec = Number(n.poll);
+        const pollMs = Number.isFinite(pollSec) && pollSec > 0 ? Math.max(1000, pollSec * 1000) : 0;
         let busy = false;
 
         async function poll(triggerMsg) {
