@@ -20,8 +20,9 @@ module.exports = function (RED) {
         }
         const tagNames = tagDefs.map((d) => d.tag);
 
-        const flatten   = !!n.flatten;
+        const flatten    = !!n.flatten;
         const includeRaw = !!n.includeRaw;
+        const debug      = !!n.debug;
 
         let pollTimer = null;
         const pollMs = n.poll ? Math.max(1000, Number(n.poll) * 1000) : 0;
@@ -35,7 +36,8 @@ module.exports = function (RED) {
             try {
                 node.status({ fill: 'blue', shape: 'dot', text: 'reading' });
                 const client = cfg.getClient();
-                const raw = await client.readTags(tagNames);
+                const result = await client.readTags(tagNames, { raw: debug });
+                const raw = debug ? result.values : result;
                 const payload = flatten ? {} : {};
                 for (const def of tagDefs) {
                     const value = applyTransform(raw[def.tag], def);
@@ -52,7 +54,13 @@ module.exports = function (RED) {
                 }
                 const dt = Date.now() - t0;
                 node.status({ fill: 'green', shape: 'dot', text: `${tagNames.length} tags · ${dt} ms` });
-                send({ ...(triggerMsg || {}), payload, topic: 'waterkotte' });
+                const out = { ...(triggerMsg || {}), payload, topic: 'waterkotte' };
+                if (debug) {
+                    out.raw = result.raw;
+                    out.url = result.url;
+                    out.parsedTags = result.values;
+                }
+                send(out);
             } catch (err) {
                 node.status({ fill: 'red', shape: 'ring', text: err.message.slice(0, 40) });
                 node.error(err, triggerMsg || {});

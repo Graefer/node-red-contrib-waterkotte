@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-waterkotte",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Node-RED node for the Waterkotte heat pump (EcoTouch / IDAL CGI). Reads multiple tags in a single request, manages login token automatically.",
   "keywords": [
     "node-red",
@@ -24,7 +24,7 @@
   "node-red": {
     "nodes": {
       "waterkotte-config": "nodes/waterkotte-config.js",
-      "waterkotte-read":   "nodes/waterkotte-read.js"
+      "waterkotte-read": "nodes/waterkotte-read.js"
     }
   },
   "files": [
@@ -39,5 +39,8 @@
   },
   "engines": {
     "node": ">=14"
+  },
+  "dependencies": {
+    "node-red-contrib-waterkotte": "^0.1.0"
   }
 }
