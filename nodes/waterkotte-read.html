@@ -1,0 +1,99 @@
+<script type="text/javascript">
+RED.nodes.registerType('waterkotte-read', {
+    category: 'Waterkotte',
+    color: '#1976D2',
+    icon: 'font-awesome/fa-thermometer-half',
+    defaults: {
+        name:       { value: '' },
+        server:     { value: '', type: 'waterkotte-config', required: true },
+        preset:     { value: 'all' },
+        tags:       { value: '[]' },
+        poll:       { value: 60, validate: RED.validators.number() },
+        flatten:    { value: true },
+        includeRaw: { value: false }
+    },
+    inputs: 1,
+    outputs: 1,
+    paletteLabel: 'waterkotte read',
+    label: function () {
+        return this.name || 'waterkotte read';
+    },
+    oneditprepare: function () {
+        const $preset = $('#node-input-preset');
+        const $custom = $('#node-input-tags-row');
+        function syncCustom() { $custom.toggle($preset.val() === 'custom'); }
+        $preset.on('change', syncCustom);
+        syncCustom();
+    }
+});
+</script>
+
+<script type="text/html" data-template-name="waterkotte-read">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-server"><i class="fa fa-server"></i> Server</label>
+        <input type="text" id="node-input-server">
+    </div>
+    <div class="form-row">
+        <label for="node-input-preset"><i class="fa fa-list"></i> Tag-Preset</label>
+        <select id="node-input-preset" style="width:200px">
+            <option value="all">All common tags</option>
+            <option value="custom">Custom (JSON)</option>
+        </select>
+    </div>
+    <div class="form-row" id="node-input-tags-row">
+        <label for="node-input-tags" style="vertical-align:top"><i class="fa fa-cogs"></i> Tags</label>
+        <textarea id="node-input-tags" rows="10" style="width:70%; font-family:monospace; font-size:12px"></textarea>
+        <div style="margin-left:105px; color:#888; font-size:12px">
+            JSON array. Example:<br>
+            <code>[{"tag":"A1","name":"temp_outdoor","scale":0.1}]</code>
+        </div>
+    </div>
+    <div class="form-row">
+        <label for="node-input-poll"><i class="fa fa-clock-o"></i> Poll (s)</label>
+        <input type="number" id="node-input-poll" style="width:120px">
+        <span style="color:#888; margin-left:8px">0 = nur on input</span>
+    </div>
+    <div class="form-row">
+        <label for="node-input-flatten" style="width:auto">
+            <input type="checkbox" id="node-input-flatten" style="margin-right:6px">
+            Bit-Felder flatten (status_pump statt status.pump)
+        </label>
+    </div>
+    <div class="form-row">
+        <label for="node-input-includeRaw" style="width:auto">
+            <input type="checkbox" id="node-input-includeRaw" style="margin-right:6px">
+            Rohwerte mitschicken
+        </label>
+    </div>
+</script>
+
+<script type="text/html" data-help-name="waterkotte-read">
+    <p>Reads multiple tags from a Waterkotte heat pump in one request.</p>
+
+    <h3>Output</h3>
+    <p>Single message with <code>msg.payload</code> as object containing every tag,
+    scaled and named per definition. Bit-decoded status registers are split into
+    individual boolean fields when "flatten" is enabled.</p>
+
+    <h3>Tag definition</h3>
+    <pre>{
+  "tag":   "A1",
+  "name":  "temp_outdoor",
+  "scale": 0.1,
+  "unit":  "°C"
+}</pre>
+    <p>For status registers add a <code>bits</code> map:</p>
+    <pre>{
+  "tag":  "I51",
+  "name": "status",
+  "bits": { "1": "pump", "2": "evu", "3": "compressor" }
+}</pre>
+
+    <h3>Polling</h3>
+    <p>Set "Poll (s)" to read at a fixed interval, or 0 to read only when an
+    input message arrives.</p>
+</script>

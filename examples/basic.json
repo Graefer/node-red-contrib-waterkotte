@@ -1,0 +1,48 @@
+[
+    {
+        "id": "wk_example_tab",
+        "type": "tab",
+        "label": "Waterkotte example",
+        "disabled": false,
+        "info": "Reads all common heat-pump tags every 60 s and writes them to InfluxDB."
+    },
+    {
+        "id": "wk_example_read",
+        "type": "waterkotte-read",
+        "z": "wk_example_tab",
+        "name": "WP read",
+        "server": "wk_example_cfg",
+        "preset": "all",
+        "tags": "[]",
+        "poll": 60,
+        "flatten": true,
+        "includeRaw": false,
+        "x": 200,
+        "y": 120,
+        "wires": [["wk_example_debug"]]
+    },
+    {
+        "id": "wk_example_debug",
+        "type": "debug",
+        "z": "wk_example_tab",
+        "name": "payload",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 420,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "wk_example_cfg",
+        "type": "waterkotte-config",
+        "name": "Heat pump",
+        "host": "192.168.3.90",
+        "port": 80,
+        "protocol": "http",
+        "timeout": 10000
+    }
+]
