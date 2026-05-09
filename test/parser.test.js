@@ -12,28 +12,41 @@ function t(name, fn) {
 
 console.log('parser');
 
-t('single A-tag, simple line', () => {
-    const out = parseTagResponse('1\tA1\t215\n', ['A1']);
-    assert.strictEqual(out.A1, 215);
+t('single A-tag (real WP response)', () => {
+    const body = '#A1\tS_OK\n192\t167\n';
+    const out = parseTagResponse(body, ['A1']);
+    assert.strictEqual(out.A1, 167);
 });
 
-t('multi-tag response', () => {
-    const body = '1\tA1\t215\n2\tA11\t302\n3\tA12\t331\n';
+t('multi-tag response (real WP format)', () => {
+    const body = '#A1\tS_OK\n192\t167\n#A11\tS_OK\n192\t211\n#A12\tS_OK\n192\t208\n';
     const out = parseTagResponse(body, ['A1', 'A11', 'A12']);
-    assert.deepStrictEqual(out, { A1: 215, A11: 302, A12: 331 });
+    assert.deepStrictEqual(out, { A1: 167, A11: 211, A12: 208 });
 });
 
-t('skips header lines and missing tags', () => {
-    const body = '#A\tS_OK\n1\tA1\t215\n';
+t('missing tag stays null', () => {
+    const body = '#A1\tS_OK\n192\t167\n';
     const out = parseTagResponse(body, ['A1', 'A99']);
-    assert.strictEqual(out.A1, 215);
+    assert.strictEqual(out.A1, 167);
     assert.strictEqual(out.A99, null);
 });
 
-t('integer status tag preserved as-is', () => {
-    const body = '1\tI51\t141\n';
+t('integer I-tag (status register)', () => {
+    const body = '#I51\tS_OK\n192\t141\n';
     const out = parseTagResponse(body, ['I51']);
     assert.strictEqual(out.I51, 141);
+});
+
+t('error status leaves tag null', () => {
+    const body = '#A1\tS_ERR\n192\t0\n';
+    const out = parseTagResponse(body, ['A1']);
+    assert.strictEqual(out.A1, null);
+});
+
+t('handles trailing whitespace', () => {
+    const body = '#A1\tS_OK\n192\t167\n\n';
+    const out = parseTagResponse(body, ['A1']);
+    assert.strictEqual(out.A1, 167);
 });
 
 console.log('transforms');
