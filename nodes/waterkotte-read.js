@@ -18,7 +18,8 @@ module.exports = function (RED) {
             node.status({ fill: 'red', shape: 'ring', text: 'no tags' });
             return;
         }
-        const tagNames = tagDefs.map((d) => d.tag);
+        // A tag may appear in several definitions (e.g. I53); request it only once
+        const tagNames = [...new Set(tagDefs.map((d) => d.tag))];
 
         const flatten    = !!n.flatten;
         const includeRaw = !!n.includeRaw;

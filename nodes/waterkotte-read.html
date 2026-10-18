@@ -61,7 +61,7 @@ RED.nodes.registerType('waterkotte-read', {
     <div class="form-row">
         <label for="node-input-flatten" style="width:auto">
             <input type="checkbox" id="node-input-flatten" style="margin-right:6px">
-            Bit-Felder flatten (status_pump statt status.pump)
+            Bit-Felder flatten (status_alarm statt status.alarm)
         </label>
     </div>
     <div class="form-row">
@@ -93,11 +93,13 @@ RED.nodes.registerType('waterkotte-read', {
   "scale": 0.1,
   "unit":  "°C"
 }</pre>
-    <p>For status registers add a <code>bits</code> map:</p>
+    <p>For status registers add a <code>bits</code> map (bit numbers count from 0 = LSB;
+    since 0.1.5, before it was from 1). <code>"abs": true</code> decodes the bits of the
+    absolute value (for registers the pump may report negative, like <code>I53</code>):</p>
     <pre>{
   "tag":  "I51",
   "name": "status",
-  "bits": { "1": "pump", "2": "evu", "3": "compressor" }
+  "bits": { "0": "source_pump", "1": "heating_pump", "3": "compressor" }
 }</pre>
 
     <h3>Polling</h3>
